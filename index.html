@@ -2,399 +2,75 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>QR Attendance System</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+  <title>QR Student Attendance</title>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-      min-height: 100vh;
-      padding: 20px;
-      color: #333;
-    }
-    .container { max-width: 1400px; margin: 0 auto; }
-    header {
-      text-align: center;
-      color: white;
-      margin-bottom: 30px;
-      padding: 30px;
-      background: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(10px);
-      border-radius: 20px;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-    header h1 { font-size: 2.5em; margin-bottom: 10px; font-weight: 700; }
-    header p { font-size: 1.1em; opacity: 0.9; margin-bottom: 15px; }
-    .mode-badge {
-      display: inline-block;
-      padding: 8px 20px;
-      background: rgba(255, 255, 255, 0.2);
-      border-radius: 25px;
-      font-size: 0.9em;
-      margin-top: 10px;
-    }
-    .mode-demo { background: #ff9800; color: white; }
-    .mode-connected { background: #4caf50; color: white; }
-    .info-box {
-      background: rgba(255, 255, 255, 0.95);
-      border-radius: 15px;
-      padding: 20px;
-      margin-bottom: 25px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-    }
-    .info-box h3 { color: #1e3c72; margin-bottom: 15px; }
-    .info-box p { color: #666; line-height: 1.6; margin-bottom: 10px; }
-    .info-box code {
-      background: #f5f5f5;
-      padding: 2px 8px;
-      border-radius: 4px;
-      font-family: monospace;
-      color: #e91e63;
-    }
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
-      gap: 25px;
-      margin-bottom: 30px;
-    }
-    .card {
-      background: white;
-      border-radius: 15px;
-      padding: 30px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-      transition: transform 0.3s ease;
-    }
-    .card:hover { transform: translateY(-5px); }
-    .card h2 {
-      color: #1e3c72;
-      margin-bottom: 20px;
-      font-size: 1.8em;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .input-group { margin-bottom: 15px; }
-    label {
-      display: block;
-      margin-bottom: 8px;
-      color: #555;
-      font-weight: 600;
-    }
-    input {
-      width: 100%;
-      padding: 12px 15px;
-      border: 2px solid #e0e0e0;
-      border-radius: 8px;
-      font-size: 16px;
-      transition: border-color 0.3s ease;
-    }
-    input:focus { outline: none; border-color: #2a5298; }
-    button {
-      width: 100%;
-      padding: 14px;
-      background: linear-gradient(135deg, #1e3c72, #2a5298);
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: transform 0.2s ease;
-      margin-top: 10px;
-    }
-    button:hover { transform: translateY(-2px); }
-    button:disabled { opacity: 0.5; cursor: not-allowed; }
-    #qrcodeDisplay {
-      margin-top: 20px;
-      text-align: center;
-      padding: 20px;
-      background: #f8f9fa;
-      border-radius: 10px;
-      min-height: 150px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-    }
-    #qrcodeDisplay canvas {
-      border: 4px solid #2a5298;
-      border-radius: 10px;
-      padding: 10px;
-      background: white;
-    }
-    #reader {
-      border-radius: 10px;
-      overflow: hidden;
-      border: 3px solid #e0e0e0;
-      background: #000;
-      max-width: 100%;
-    }
-    .status-message {
-      padding: 12px;
-      border-radius: 8px;
-      margin-top: 15px;
-      font-weight: 500;
-      text-align: center;
-    }
-    .status-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-    .status-error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-    .status-warning { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
-    .attendance-table {
-      width: 100%;
-      background: white;
-      border-radius: 15px;
-      padding: 30px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-      overflow-x: auto;
-    }
-    table { width: 100%; border-collapse: collapse; }
-    th {
-      background: linear-gradient(135deg, #1e3c72, #2a5298);
-      color: white;
-      padding: 15px;
-      text-align: left;
-      font-weight: 600;
-    }
-    th:first-child { border-top-left-radius: 10px; }
-    th:last-child { border-top-right-radius: 10px; }
-    td { padding: 15px; border-bottom: 1px solid #e0e0e0; }
-    tr:hover { background: #f8f9fa; }
-    .badge {
-      display: inline-block;
-      padding: 5px 12px;
-      border-radius: 20px;
-      font-size: 14px;
-      font-weight: 600;
-    }
-    .badge-present { background: #d4edda; color: #155724; }
-    .controls { display: flex; gap: 10px; margin-top: 20px; }
-    .controls button { flex: 1; }
-    .btn-secondary { background: linear-gradient(135deg, #6c757d, #5a6268); }
-    .btn-danger { background: linear-gradient(135deg, #dc3545, #c82333); }
-    .empty-state { text-align: center; padding: 60px 20px; color: #999; }
-    @media (max-width: 768px) {
-      .grid { grid-template-columns: 1fr; }
-      header h1 { font-size: 2em; }
-    }
+    body { font-family: Arial; text-align: center; }
+    #qrcode { margin: 20px; }
+    #video { width: 300px; }
   </style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1>QR Attendance System</h1>
-      <p>ESP32-S2 Powered Attendance Validation</p>
-      <div class="mode-badge mode-demo" id="modeBadge">DEMO MODE (Simulated ESP32)</div>
-    </header>
+  <h1>QR-Based Student Attendance</h1>
 
-    <div class="info-box">
-      <h3>Important: Wokwi Network Limitation</h3>
-      <p><strong>Why can't we connect to Wokwi ESP32?</strong></p>
-      <p>Wokwi runs ESP32 in a <strong>virtual network</strong> (IP: <code>10.10.0.2</code>) that your browser cannot access directly. This is a security limitation of web browsers - they can't reach simulated networks.</p>
-      <p><strong>Solutions:</strong></p>
-      <p>1. <strong>Demo Mode (Current):</strong> This page simulates ESP32 validation locally in JavaScript</p>
-      <p>2. <strong>Real Hardware:</strong> Upload code to physical ESP32-S2 on your WiFi network</p>
-      <p>3. <strong>Wokwi Bridge:</strong> Use Wokwi's paid API bridge feature (requires subscription)</p>
-      <p style="margin-top: 15px; padding: 10px; background: #fff3cd; border-radius: 5px;">
-        <strong>Demo Mode is active!</strong> The system works exactly like ESP32 would - it validates attendance, prevents duplicates, and tracks everything. Only difference: validation happens in browser instead of ESP32.
-      </p>
-    </div>
+  <h3>Generate QR for Student</h3>
+  <input type="text" id="studentId" placeholder="Enter Student ID">
+  <button onclick="generateQR()">Generate</button>
+  <div id="qrcode"></div>
 
-    <div class="grid">
-      <div class="card">
-        <h2>🎫 Generate Student QR Code</h2>
-        <div class="input-group">
-          <label for="studentName">Student Name</label>
-          <input type="text" id="studentName" placeholder="Enter full name">
-        </div>
-        <div class="input-group">
-          <label for="studentID">Student ID</label>
-          <input type="text" id="studentID" placeholder="Enter student ID">
-        </div>
-        <button onclick="generateQR()">Generate QR Code</button>
-        <div id="qrcodeDisplay">
-          <p style="color: #999;">QR code will appear here</p>
-        </div>
-        <div id="generateStatus"></div>
-      </div>
-
-      <div class="card">
-        <h2>📸 Scan Attendance QR Code</h2>
-        <div id="reader"></div>
-        <div class="controls">
-          <button onclick="startScanner()" id="startBtn">Start Scanner</button>
-          <button class="btn-secondary" onclick="stopScanner()">Stop Scanner</button>
-        </div>
-        <div id="scanStatus"></div>
-      </div>
-    </div>
-
-    <div class="attendance-table">
-      <h2 style="color: #1e3c72; margin-bottom: 20px;">📊 Attendance Records</h2>
-      <div id="attendanceContent">
-        <div class="empty-state">
-          <p>Generate and scan QR codes to track attendance</p>
-        </div>
-      </div>
-      <div class="controls">
-        <button onclick="exportJSON()">📥 Export JSON</button>
-        <button class="btn-secondary" onclick="downloadCSV()">📄 Download CSV</button>
-        <button class="btn-danger" onclick="clearRecords()">🗑️ Clear All</button>
-      </div>
-    </div>
-  </div>
+  <h3>Scan QR Code</h3>
+  <video id="video" autoplay></video>
+  <p id="result">Result: None</p>
 
   <script>
-    let html5QrCode = null;
-    let isScanning = false;
-    let attendance = [];
-    let demoRecords = [];
-
     function generateQR() {
-      const name = document.getElementById("studentName").value.trim();
-      const id = document.getElementById("studentID").value.trim();
-
-      if (!name || !id) {
-        showStatus('generateStatus', 'Please enter both name and ID', 'error');
-        return;
-      }
-
-      const data = JSON.stringify({ id, name });
-      const qrDisplay = document.getElementById("qrcodeDisplay");
-      qrDisplay.innerHTML = "";
-
-      new QRCode(qrDisplay, {
-        text: data,
-        width: 200,
-        height: 200,
-        colorDark: "#1e3c72",
-        colorLight: "#ffffff",
-        correctLevel: QRCode.CorrectLevel.H
+      let studentId = document.getElementById("studentId").value;
+      document.getElementById("qrcode").innerHTML = "";
+      QRCode.toCanvas(studentId, { width: 200 }, function (err, canvas) {
+        if (err) console.error(err);
+        document.getElementById("qrcode").appendChild(canvas);
       });
-
-      showStatus('generateStatus', 'QR Code generated! Show to camera.', 'success');
-      document.getElementById("studentName").value = "";
-      document.getElementById("studentID").value = "";
     }
 
-    async function startScanner() {
-      if (isScanning) {
-        showStatus('scanStatus', 'Scanner already running', 'warning');
-        return;
-      }
+    // Webcam setup for scanning
+    const video = document.getElementById("video");
+    const result = document.getElementById("result");
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+      .then(stream => video.srcObject = stream);
 
-      try {
-        html5QrCode = new Html5Qrcode("reader");
-        await html5QrCode.start(
-          { facingMode: "environment" },
-          { fps: 10, qrbox: { width: 250, height: 250 } },
-          onScanSuccess
-        );
-        isScanning = true;
-        document.getElementById('startBtn').disabled = true;
-        showStatus('scanStatus', 'Scanner active. Show QR code.', 'success');
-      } catch (err) {
-        showStatus('scanStatus', 'Camera error: ' + err, 'error');
-      }
-    }
+    const canvas = document.createElement("canvas");
+    const context = canvas.getContext("2d");
 
-    async function stopScanner() {
-      if (!isScanning || !html5QrCode) {
-        showStatus('scanStatus', 'Scanner not running', 'warning');
-        return;
-      }
-      try {
-        await html5QrCode.stop();
-        isScanning = false;
-        document.getElementById('startBtn').disabled = false;
-        showStatus('scanStatus', 'Scanner stopped', 'success');
-      } catch (err) {
-        showStatus('scanStatus', 'Error stopping scanner', 'error');
-      }
-    }
-
-    async function onScanSuccess(decodedText) {
-      try {
-        const student = JSON.parse(decodedText);
-        showStatus('scanStatus', 'Validating (Demo ESP32)...', 'warning');
-        
-        // Simulate ESP32 validation
-        const exists = demoRecords.find(r => r.id === student.id);
-        if (exists) {
-          showStatus('scanStatus', 'REJECTED: Already marked present', 'error');
-          console.log('[Demo ESP32] REJECTED - Duplicate:', student.name);
-          return;
+    video.addEventListener("play", () => {
+      const scan = () => {
+        if (video.readyState === video.HAVE_ENOUGH_DATA) {
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+          context.drawImage(video, 0, 0, canvas.width, canvas.height);
+          const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+          const code = jsQR(imageData.data, canvas.width, canvas.height);
+          if (code) {
+            result.innerText = "Result: " + code.data;
+            saveAttendance(code.data);
+          }
         }
-        
-        // Add record
-        demoRecords.push(student);
-        student.status = "Present";
-        student.timestamp = new Date().toLocaleString();
-        attendance.push(student);
-        
-        console.log('[Demo ESP32] APPROVED:', student.name, '| Total:', demoRecords.length);
-        showStatus('scanStatus', 'APPROVED | Total: ' + demoRecords.length, 'success');
-        
-        updateAttendanceDisplay();
-        await stopScanner();
-      } catch (e) {
-        showStatus('scanStatus', 'Invalid QR code', 'error');
+        requestAnimationFrame(scan);
+      };
+      scan();
+    });
+
+    // Save scanned student to students.json (simulation here with localStorage)
+    function saveAttendance(studentId) {
+      let students = JSON.parse(localStorage.getItem("students")) || [];
+      if (!students.includes(studentId)) {
+        students.push(studentId);
+        localStorage.setItem("students", JSON.stringify(students));
+        fetch("students.json", {
+          method: "POST",
+          body: JSON.stringify(students)
+        }).catch(console.error);
       }
-    }
-
-    function updateAttendanceDisplay() {
-      const contentDiv = document.getElementById("attendanceContent");
-      if (attendance.length === 0) {
-        contentDiv.innerHTML = '<div class="empty-state"><p>Generate and scan QR codes to track attendance</p></div>';
-        return;
-      }
-
-      let tableHTML = '<table><thead><tr><th>#</th><th>Student ID</th><th>Name</th><th>Status</th><th>Timestamp</th></tr></thead><tbody>';
-      attendance.forEach((student, index) => {
-        tableHTML += `<tr><td>${index + 1}</td><td>${student.id}</td><td>${student.name}</td><td><span class="badge badge-present">${student.status}</span></td><td>${student.timestamp}</td></tr>`;
-      });
-      tableHTML += '</tbody></table>';
-      contentDiv.innerHTML = tableHTML;
-    }
-
-    function exportJSON() {
-      if (attendance.length === 0) { alert("No records to export"); return; }
-      const blob = new Blob([JSON.stringify(attendance, null, 2)], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `attendance_${new Date().getTime()}.json`;
-      a.click();
-      URL.revokeObjectURL(url);
-    }
-
-    function downloadCSV() {
-      if (attendance.length === 0) { alert("No records to export"); return; }
-      let csv = "Student ID,Name,Status,Timestamp\n";
-      attendance.forEach(s => csv += `${s.id},${s.name},${s.status},${s.timestamp}\n`);
-      const blob = new Blob([csv], { type: "text/csv" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `attendance_${new Date().getTime()}.csv`;
-      a.click();
-      URL.revokeObjectURL(url);
-    }
-
-    function clearRecords() {
-      if (!confirm('Clear all attendance records?')) return;
-      attendance = [];
-      demoRecords = [];
-      updateAttendanceDisplay();
-      console.log('[Demo ESP32] System Reset');
-    }
-
-    function showStatus(elementId, message, type) {
-      const statusDiv = document.getElementById(elementId);
-      statusDiv.innerHTML = `<div class="status-message status-${type}">${message}</div>`;
-      setTimeout(() => statusDiv.innerHTML = '', 5000);
     }
   </script>
 </body>
