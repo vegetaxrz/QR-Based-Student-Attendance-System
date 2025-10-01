@@ -3,16 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>QR Attendance System - ESP32 Connected</title>
+  <title>QR Attendance System</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
@@ -20,12 +15,7 @@
       padding: 20px;
       color: #333;
     }
-
-    .container {
-      max-width: 1400px;
-      margin: 0 auto;
-    }
-
+    .container { max-width: 1400px; margin: 0 auto; }
     header {
       text-align: center;
       color: white;
@@ -36,99 +26,48 @@
       border-radius: 20px;
       border: 1px solid rgba(255, 255, 255, 0.2);
     }
-
-    header h1 {
-      font-size: 2.5em;
-      margin-bottom: 10px;
-      font-weight: 700;
-    }
-
-    header p {
-      font-size: 1.1em;
-      opacity: 0.9;
-      margin-bottom: 15px;
-    }
-
-    .connection-status {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px 20px;
+    header h1 { font-size: 2.5em; margin-bottom: 10px; font-weight: 700; }
+    header p { font-size: 1.1em; opacity: 0.9; margin-bottom: 15px; }
+    .mode-badge {
+      display: inline-block;
+      padding: 8px 20px;
       background: rgba(255, 255, 255, 0.2);
       border-radius: 25px;
       font-size: 0.9em;
+      margin-top: 10px;
     }
-
-    .status-indicator {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      animation: pulse 2s infinite;
-    }
-
-    .status-connected {
-      background: #4caf50;
-    }
-
-    .status-disconnected {
-      background: #f44336;
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.5; }
-    }
-
-    .esp32-config {
+    .mode-demo { background: #ff9800; color: white; }
+    .mode-connected { background: #4caf50; color: white; }
+    .info-box {
       background: rgba(255, 255, 255, 0.95);
       border-radius: 15px;
       padding: 20px;
       margin-bottom: 25px;
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
     }
-
-    .esp32-config h3 {
-      color: #1e3c72;
-      margin-bottom: 15px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
+    .info-box h3 { color: #1e3c72; margin-bottom: 15px; }
+    .info-box p { color: #666; line-height: 1.6; margin-bottom: 10px; }
+    .info-box code {
+      background: #f5f5f5;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-family: monospace;
+      color: #e91e63;
     }
-
-    .config-input {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 10px;
-    }
-
-    .config-input input {
-      flex: 1;
-      padding: 12px 15px;
-      border: 2px solid #e0e0e0;
-      border-radius: 8px;
-      font-size: 16px;
-    }
-
     .grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
       gap: 25px;
       margin-bottom: 30px;
     }
-
     .card {
       background: white;
       border-radius: 15px;
       padding: 30px;
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      transition: transform 0.3s ease;
     }
-
-    .card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
-    }
-
+    .card:hover { transform: translateY(-5px); }
     .card h2 {
       color: #1e3c72;
       margin-bottom: 20px;
@@ -137,30 +76,13 @@
       align-items: center;
       gap: 10px;
     }
-
-    .icon {
-      width: 30px;
-      height: 30px;
-      background: linear-gradient(135deg, #1e3c72, #2a5298);
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-size: 18px;
-    }
-
-    .input-group {
-      margin-bottom: 15px;
-    }
-
+    .input-group { margin-bottom: 15px; }
     label {
       display: block;
       margin-bottom: 8px;
       color: #555;
       font-weight: 600;
     }
-
     input {
       width: 100%;
       padding: 12px 15px;
@@ -169,12 +91,7 @@
       font-size: 16px;
       transition: border-color 0.3s ease;
     }
-
-    input:focus {
-      outline: none;
-      border-color: #2a5298;
-    }
-
+    input:focus { outline: none; border-color: #2a5298; }
     button {
       width: 100%;
       padding: 14px;
@@ -185,25 +102,11 @@
       font-size: 16px;
       font-weight: 600;
       cursor: pointer;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      transition: transform 0.2s ease;
       margin-top: 10px;
     }
-
-    button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 5px 15px rgba(30, 60, 114, 0.4);
-    }
-
-    button:active {
-      transform: translateY(0);
-    }
-
-    button:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-      transform: none;
-    }
-
+    button:hover { transform: translateY(-2px); }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
     #qrcodeDisplay {
       margin-top: 20px;
       text-align: center;
@@ -216,14 +119,12 @@
       align-items: center;
       justify-content: center;
     }
-
     #qrcodeDisplay canvas {
       border: 4px solid #2a5298;
       border-radius: 10px;
       padding: 10px;
       background: white;
     }
-
     #reader {
       border-radius: 10px;
       overflow: hidden;
@@ -231,45 +132,16 @@
       background: #000;
       max-width: 100%;
     }
-
     .status-message {
       padding: 12px;
       border-radius: 8px;
       margin-top: 15px;
       font-weight: 500;
       text-align: center;
-      animation: slideIn 0.3s ease;
     }
-
-    @keyframes slideIn {
-      from {
-        opacity: 0;
-        transform: translateY(-10px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .status-success {
-      background: #d4edda;
-      color: #155724;
-      border: 1px solid #c3e6cb;
-    }
-
-    .status-error {
-      background: #f8d7da;
-      color: #721c24;
-      border: 1px solid #f5c6cb;
-    }
-
-    .status-warning {
-      background: #fff3cd;
-      color: #856404;
-      border: 1px solid #ffeaa7;
-    }
-
+    .status-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+    .status-error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+    .status-warning { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
     .attendance-table {
       width: 100%;
       background: white;
@@ -278,12 +150,7 @@
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
       overflow-x: auto;
     }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-
+    table { width: 100%; border-collapse: collapse; }
     th {
       background: linear-gradient(135deg, #1e3c72, #2a5298);
       color: white;
@@ -291,24 +158,10 @@
       text-align: left;
       font-weight: 600;
     }
-
-    th:first-child {
-      border-top-left-radius: 10px;
-    }
-
-    th:last-child {
-      border-top-right-radius: 10px;
-    }
-
-    td {
-      padding: 15px;
-      border-bottom: 1px solid #e0e0e0;
-    }
-
-    tr:hover {
-      background: #f8f9fa;
-    }
-
+    th:first-child { border-top-left-radius: 10px; }
+    th:last-child { border-top-right-radius: 10px; }
+    td { padding: 15px; border-bottom: 1px solid #e0e0e0; }
+    tr:hover { background: #f8f9fa; }
     .badge {
       display: inline-block;
       padding: 5px 12px;
@@ -316,117 +169,42 @@
       font-size: 14px;
       font-weight: 600;
     }
-
-    .badge-present {
-      background: #d4edda;
-      color: #155724;
-    }
-
-    .controls {
-      display: flex;
-      gap: 10px;
-      margin-top: 20px;
-    }
-
-    .controls button {
-      flex: 1;
-    }
-
-    .btn-secondary {
-      background: linear-gradient(135deg, #6c757d, #5a6268);
-    }
-
-    .btn-danger {
-      background: linear-gradient(135deg, #dc3545, #c82333);
-    }
-
-    .empty-state {
-      text-align: center;
-      padding: 60px 20px;
-      color: #999;
-    }
-
-    .hardware-status {
-      display: flex;
-      gap: 15px;
-      margin-top: 15px;
-      padding: 15px;
-      background: #f8f9fa;
-      border-radius: 10px;
-    }
-
-    .led-indicator {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 15px;
-      background: white;
-      border-radius: 8px;
-      font-size: 14px;
-    }
-
-    .led-light {
-      width: 16px;
-      height: 16px;
-      border-radius: 50%;
-      border: 2px solid #ddd;
-    }
-
-    .led-green { background: #4caf50; }
-    .led-red { background: #f44336; }
-
+    .badge-present { background: #d4edda; color: #155724; }
+    .controls { display: flex; gap: 10px; margin-top: 20px; }
+    .controls button { flex: 1; }
+    .btn-secondary { background: linear-gradient(135deg, #6c757d, #5a6268); }
+    .btn-danger { background: linear-gradient(135deg, #dc3545, #c82333); }
+    .empty-state { text-align: center; padding: 60px 20px; color: #999; }
     @media (max-width: 768px) {
-      .grid {
-        grid-template-columns: 1fr;
-      }
-
-      header h1 {
-        font-size: 2em;
-      }
-
-      .card {
-        padding: 20px;
-      }
+      .grid { grid-template-columns: 1fr; }
+      header h1 { font-size: 2em; }
     }
   </style>
 </head>
 <body>
   <div class="container">
     <header>
-      <h1>📱 QR Attendance System</h1>
-      <p>ESP32-Powered Attendance Validation System</p>
-      <div class="connection-status">
-        <span class="status-indicator status-disconnected" id="connectionIndicator"></span>
-        <span id="connectionText">Connecting to ESP32...</span>
-      </div>
+      <h1>QR Attendance System</h1>
+      <p>ESP32-S2 Powered Attendance Validation</p>
+      <div class="mode-badge mode-demo" id="modeBadge">DEMO MODE (Simulated ESP32)</div>
     </header>
 
-    <!-- ESP32 Configuration -->
-    <div class="esp32-config">
-      <h3>⚙️ ESP32 Server Configuration</h3>
-      <div class="config-input">
-        <input type="text" id="esp32IP" placeholder="Enter ESP32 IP Address (e.g., 192.168.1.100)" value="192.168.1.1">
-        <button onclick="connectESP32()" style="width: auto; padding: 12px 30px;">Connect</button>
-      </div>
-      <p style="color: #666; font-size: 14px; margin-top: 10px;">
-        📝 Copy the IP address from Wokwi serial monitor after WiFi connects
+    <div class="info-box">
+      <h3>Important: Wokwi Network Limitation</h3>
+      <p><strong>Why can't we connect to Wokwi ESP32?</strong></p>
+      <p>Wokwi runs ESP32 in a <strong>virtual network</strong> (IP: <code>10.10.0.2</code>) that your browser cannot access directly. This is a security limitation of web browsers - they can't reach simulated networks.</p>
+      <p><strong>Solutions:</strong></p>
+      <p>1. <strong>Demo Mode (Current):</strong> This page simulates ESP32 validation locally in JavaScript</p>
+      <p>2. <strong>Real Hardware:</strong> Upload code to physical ESP32-S2 on your WiFi network</p>
+      <p>3. <strong>Wokwi Bridge:</strong> Use Wokwi's paid API bridge feature (requires subscription)</p>
+      <p style="margin-top: 15px; padding: 10px; background: #fff3cd; border-radius: 5px;">
+        <strong>Demo Mode is active!</strong> The system works exactly like ESP32 would - it validates attendance, prevents duplicates, and tracks everything. Only difference: validation happens in browser instead of ESP32.
       </p>
-      <div class="hardware-status" id="hardwareStatus" style="display: none;">
-        <div class="led-indicator">
-          <div class="led-light led-green"></div>
-          <span>Green LED: Approved</span>
-        </div>
-        <div class="led-indicator">
-          <div class="led-light led-red"></div>
-          <span>Red LED: Rejected</span>
-        </div>
-      </div>
     </div>
 
     <div class="grid">
-      <!-- QR Code Generator -->
       <div class="card">
-        <h2><span class="icon">🎫</span> Generate Student QR Code</h2>
+        <h2>🎫 Generate Student QR Code</h2>
         <div class="input-group">
           <label for="studentName">Student Name</label>
           <input type="text" id="studentName" placeholder="Enter full name">
@@ -442,9 +220,8 @@
         <div id="generateStatus"></div>
       </div>
 
-      <!-- QR Code Scanner -->
       <div class="card">
-        <h2><span class="icon">📸</span> Scan Attendance QR Code</h2>
+        <h2>📸 Scan Attendance QR Code</h2>
         <div id="reader"></div>
         <div class="controls">
           <button onclick="startScanner()" id="startBtn">Start Scanner</button>
@@ -454,74 +231,27 @@
       </div>
     </div>
 
-    <!-- Attendance Records -->
     <div class="attendance-table">
-      <h2 style="color: #1e3c72; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between;">
-        <span style="display: flex; align-items: center; gap: 10px;">
-          <span class="icon">📊</span> Attendance Records
-        </span>
-        <button onclick="syncWithESP32()" style="width: auto; padding: 10px 20px; margin: 0;">🔄 Sync from ESP32</button>
-      </h2>
+      <h2 style="color: #1e3c72; margin-bottom: 20px;">📊 Attendance Records</h2>
       <div id="attendanceContent">
         <div class="empty-state">
-          <p>Connect to ESP32 and scan QR codes to track attendance</p>
+          <p>Generate and scan QR codes to track attendance</p>
         </div>
       </div>
       <div class="controls">
         <button onclick="exportJSON()">📥 Export JSON</button>
         <button class="btn-secondary" onclick="downloadCSV()">📄 Download CSV</button>
-        <button class="btn-danger" onclick="resetESP32()">🔄 Reset ESP32</button>
+        <button class="btn-danger" onclick="clearRecords()">🗑️ Clear All</button>
       </div>
     </div>
   </div>
 
   <script>
-    let esp32IP = '';
-    let isConnected = false;
     let html5QrCode = null;
     let isScanning = false;
     let attendance = [];
+    let demoRecords = [];
 
-    // Connect to ESP32
-    async function connectESP32() {
-      const ipInput = document.getElementById("esp32IP");
-      esp32IP = ipInput.value.trim();
-      
-      if (!esp32IP) {
-        showStatus('generateStatus', 'Please enter ESP32 IP address', 'error');
-        return;
-      }
-
-      try {
-        const response = await fetch(`http://${esp32IP}/status`, {
-          method: 'GET',
-          mode: 'cors'
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          isConnected = true;
-          
-          document.getElementById('connectionIndicator').className = 'status-indicator status-connected';
-          document.getElementById('connectionText').textContent = `Connected to ESP32 (${data.totalRecords} records)`;
-          document.getElementById('hardwareStatus').style.display = 'flex';
-          
-          showStatus('generateStatus', `✓ Connected to ESP32 at ${esp32IP}`, 'success');
-          
-          // Sync records
-          await syncWithESP32();
-        } else {
-          throw new Error('Connection failed');
-        }
-      } catch (error) {
-        isConnected = false;
-        document.getElementById('connectionIndicator').className = 'status-indicator status-disconnected';
-        document.getElementById('connectionText').textContent = 'ESP32 Disconnected';
-        showStatus('generateStatus', `✗ Cannot connect to ${esp32IP}. Check IP and ensure ESP32 is running.`, 'error');
-      }
-    }
-
-    // Generate QR Code
     function generateQR() {
       const name = document.getElementById("studentName").value.trim();
       const id = document.getElementById("studentID").value.trim();
@@ -544,204 +274,94 @@
         correctLevel: QRCode.CorrectLevel.H
       });
 
-      showStatus('generateStatus', '✓ QR Code generated! Show to camera to mark attendance.', 'success');
-      
+      showStatus('generateStatus', 'QR Code generated! Show to camera.', 'success');
       document.getElementById("studentName").value = "";
       document.getElementById("studentID").value = "";
     }
 
-    // Start QR Scanner
     async function startScanner() {
-      if (!isConnected) {
-        showStatus('scanStatus', '⚠ Please connect to ESP32 first', 'warning');
-        return;
-      }
-
       if (isScanning) {
-        showStatus('scanStatus', 'Scanner is already running', 'warning');
+        showStatus('scanStatus', 'Scanner already running', 'warning');
         return;
       }
 
       try {
         html5QrCode = new Html5Qrcode("reader");
-        
         await html5QrCode.start(
           { facingMode: "environment" },
           { fps: 10, qrbox: { width: 250, height: 250 } },
-          onScanSuccess,
-          onScanFailure
+          onScanSuccess
         );
-        
         isScanning = true;
         document.getElementById('startBtn').disabled = true;
-        showStatus('scanStatus', '✓ Scanner active. Show QR code to camera.', 'success');
+        showStatus('scanStatus', 'Scanner active. Show QR code.', 'success');
       } catch (err) {
-        showStatus('scanStatus', `Camera error: ${err}`, 'error');
+        showStatus('scanStatus', 'Camera error: ' + err, 'error');
       }
     }
 
-    // Stop QR Scanner
     async function stopScanner() {
       if (!isScanning || !html5QrCode) {
-        showStatus('scanStatus', 'Scanner is not running', 'warning');
+        showStatus('scanStatus', 'Scanner not running', 'warning');
         return;
       }
-
       try {
         await html5QrCode.stop();
         isScanning = false;
         document.getElementById('startBtn').disabled = false;
-        showStatus('scanStatus', '✓ Scanner stopped', 'success');
+        showStatus('scanStatus', 'Scanner stopped', 'success');
       } catch (err) {
         showStatus('scanStatus', 'Error stopping scanner', 'error');
       }
     }
 
-    // Handle successful scan - Send to ESP32
     async function onScanSuccess(decodedText) {
-      if (!isConnected) {
-        showStatus('scanStatus', '⚠ Not connected to ESP32', 'error');
-        stopScanner();
-        return;
-      }
-
       try {
         const student = JSON.parse(decodedText);
+        showStatus('scanStatus', 'Validating (Demo ESP32)...', 'warning');
         
-        // Send to ESP32 for validation
-        showStatus('scanStatus', '⏳ Sending to ESP32 for validation...', 'warning');
-        
-        const response = await fetch(`http://${esp32IP}/mark-attendance`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(student)
-        });
-
-        const result = await response.json();
-
-        if (result.success) {
-          showStatus('scanStatus', `✓ ${result.message} | Total: ${result.total}`, 'success');
-          
-          // Add to local display
-          student.status = "Present";
-          student.timestamp = new Date().toLocaleString();
-          attendance.push(student);
-          updateAttendanceDisplay();
-          
-          // Stop scanner after successful scan
-          await stopScanner();
-        } else {
-          showStatus('scanStatus', `✗ ESP32 Rejected: ${result.message}`, 'error');
+        // Simulate ESP32 validation
+        const exists = demoRecords.find(r => r.id === student.id);
+        if (exists) {
+          showStatus('scanStatus', 'REJECTED: Already marked present', 'error');
+          console.log('[Demo ESP32] REJECTED - Duplicate:', student.name);
+          return;
         }
         
-      } catch (e) {
-        showStatus('scanStatus', `Error: ${e.message}`, 'error');
-      }
-    }
-
-    function onScanFailure(error) {
-      // Silent - continuous scanning
-    }
-
-    // Sync records from ESP32
-    async function syncWithESP32() {
-      if (!isConnected) {
-        showStatus('scanStatus', 'Please connect to ESP32 first', 'warning');
-        return;
-      }
-
-      try {
-        const response = await fetch(`http://${esp32IP}/get-records`);
-        const records = await response.json();
+        // Add record
+        demoRecords.push(student);
+        student.status = "Present";
+        student.timestamp = new Date().toLocaleString();
+        attendance.push(student);
         
-        attendance = records;
+        console.log('[Demo ESP32] APPROVED:', student.name, '| Total:', demoRecords.length);
+        showStatus('scanStatus', 'APPROVED | Total: ' + demoRecords.length, 'success');
+        
         updateAttendanceDisplay();
-        
-        showStatus('scanStatus', `✓ Synced ${records.length} records from ESP32`, 'success');
-      } catch (error) {
-        showStatus('scanStatus', 'Failed to sync with ESP32', 'error');
+        await stopScanner();
+      } catch (e) {
+        showStatus('scanStatus', 'Invalid QR code', 'error');
       }
     }
 
-    // Reset ESP32 attendance
-    async function resetESP32() {
-      if (!isConnected) {
-        alert('Please connect to ESP32 first');
-        return;
-      }
-
-      if (!confirm('Reset ESP32 and clear all attendance records?')) {
-        return;
-      }
-
-      try {
-        const response = await fetch(`http://${esp32IP}/reset`, {
-          method: 'POST'
-        });
-
-        const result = await response.json();
-        
-        if (result.success) {
-          attendance = [];
-          updateAttendanceDisplay();
-          alert('✓ ESP32 reset successfully!');
-        }
-      } catch (error) {
-        alert('Failed to reset ESP32');
-      }
-    }
-
-    // Update attendance display
     function updateAttendanceDisplay() {
       const contentDiv = document.getElementById("attendanceContent");
-      
       if (attendance.length === 0) {
-        contentDiv.innerHTML = `
-          <div class="empty-state">
-            <p>Connect to ESP32 and scan QR codes to track attendance</p>
-          </div>`;
+        contentDiv.innerHTML = '<div class="empty-state"><p>Generate and scan QR codes to track attendance</p></div>';
         return;
       }
 
-      let tableHTML = `
-        <table>
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Student ID</th>
-              <th>Name</th>
-              <th>Status</th>
-              <th>Timestamp</th>
-            </tr>
-          </thead>
-          <tbody>`;
-
+      let tableHTML = '<table><thead><tr><th>#</th><th>Student ID</th><th>Name</th><th>Status</th><th>Timestamp</th></tr></thead><tbody>';
       attendance.forEach((student, index) => {
-        tableHTML += `
-          <tr>
-            <td>${index + 1}</td>
-            <td>${student.id}</td>
-            <td>${student.name}</td>
-            <td><span class="badge badge-present">${student.status}</span></td>
-            <td>${student.timestamp || 'N/A'}</td>
-          </tr>`;
+        tableHTML += `<tr><td>${index + 1}</td><td>${student.id}</td><td>${student.name}</td><td><span class="badge badge-present">${student.status}</span></td><td>${student.timestamp}</td></tr>`;
       });
-
-      tableHTML += `</tbody></table>`;
+      tableHTML += '</tbody></table>';
       contentDiv.innerHTML = tableHTML;
     }
 
-    // Export as JSON
     function exportJSON() {
-      if (attendance.length === 0) {
-        alert("No records to export");
-        return;
-      }
-
-      const dataStr = JSON.stringify(attendance, null, 2);
-      const blob = new Blob([dataStr], { type: "application/json" });
+      if (attendance.length === 0) { alert("No records to export"); return; }
+      const blob = new Blob([JSON.stringify(attendance, null, 2)], { type: "application/json" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
@@ -750,18 +370,10 @@
       URL.revokeObjectURL(url);
     }
 
-    // Download as CSV
     function downloadCSV() {
-      if (attendance.length === 0) {
-        alert("No records to export");
-        return;
-      }
-
+      if (attendance.length === 0) { alert("No records to export"); return; }
       let csv = "Student ID,Name,Status,Timestamp\n";
-      attendance.forEach(student => {
-        csv += `${student.id},${student.name},${student.status},${student.timestamp || ''}\n`;
-      });
-
+      attendance.forEach(s => csv += `${s.id},${s.name},${s.status},${s.timestamp}\n`);
       const blob = new Blob([csv], { type: "text/csv" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -771,24 +383,19 @@
       URL.revokeObjectURL(url);
     }
 
-    // Show status message
+    function clearRecords() {
+      if (!confirm('Clear all attendance records?')) return;
+      attendance = [];
+      demoRecords = [];
+      updateAttendanceDisplay();
+      console.log('[Demo ESP32] System Reset');
+    }
+
     function showStatus(elementId, message, type) {
       const statusDiv = document.getElementById(elementId);
       statusDiv.innerHTML = `<div class="status-message status-${type}">${message}</div>`;
-      
-      setTimeout(() => {
-        statusDiv.innerHTML = '';
-      }, 5000);
+      setTimeout(() => statusDiv.innerHTML = '', 5000);
     }
-
-    // Auto-connect on page load if IP is set
-    window.onload = function() {
-      const savedIP = document.getElementById("esp32IP").value;
-      if (savedIP) {
-        // Optional: auto-connect
-        // connectESP32();
-      }
-    };
   </script>
 </body>
 </html>
